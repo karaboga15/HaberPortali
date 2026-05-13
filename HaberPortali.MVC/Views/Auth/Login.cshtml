@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Giriş";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="mb-4 text-center fw-bold">Giriş Yap</h4>
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Kullanıcı Adı</label>
+                        <input name="userName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Şifre</label>
+                        <input name="password" type="password" class="form-control" required />
+                    </div>
+                    <button class="btn btn-danger w-100">Giriş</button>
+                </form>
+                <p class="text-center mt-3 mb-0">Hesabın yok mu? <a asp-action="Register">Kayıt Ol</a></p>
+            </div>
+        </div>
+    </div>
+</div>

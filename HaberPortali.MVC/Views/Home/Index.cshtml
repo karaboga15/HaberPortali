@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Haberler";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6 offset-md-3">
+        <form method="get" asp-action="Index">
+            <div class="input-group">
+                <input name="search" value="@ViewBag.Search" class="form-control" placeholder="Haber ara..." />
+                <button class="btn btn-danger" type="submit"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row" id="newsContainer"></div>
+
+@section Scripts {
+<script>
+const raw = @Html.Raw(ViewBag.News ?? "[]");
+const news = Array.isArray(raw) ? raw : [];
+const container = document.getElementById('newsContainer');
+if (news.length === 0) {
+    container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>Haber bulunamadı.</h4></div>';
+} else {
+    news.forEach(n => {
+        container.innerHTML += `
+        <div class="col-md-4 mb-4">
+            <div class="card news-card h-100">
+                ${n.imagePath ? `<img src="${n.imagePath}" class="card-img-top" style="height:200px;object-fit:cover" onerror="this.style.display='none'">` : ''}
+                <div class="card-body">
+                    <span class="badge badge-category mb-2">${n.categoryId}</span>
+                    <h5 class="card-title">${n.title}</h5>
+                    <p class="card-text text-muted small">${n.content.substring(0,120)}...</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <small class="text-muted"><i class="bi bi-eye"></i> ${n.viewCount}</small>
+                    <a href="/Home/Detail/${n.id}" class="btn btn-sm btn-outline-danger">Devamını Oku</a>
+                </div>
+            </div>
+        </div>`;
+    });
+}
+</script>
+}
