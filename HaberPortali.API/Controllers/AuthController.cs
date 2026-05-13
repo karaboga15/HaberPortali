@@ -27,22 +27,21 @@ namespace HaberPortali.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto model)
         {
-            var user = new AppUser
-            {
-                UserName = model.UserName,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber,
-                FirstName = model.UserName,
-                LastName = ""
-            };
+            var user = new AppUser { UserName = model.UserName };
             var result = await _userManager.CreateAsync(user, model.Password);
+
             if (result.Succeeded)
             {
+                // Sistemde "User" rolü yoksa önce onu oluştur (Tedbir amaçlı)
                 if (!await _roleManager.RoleExistsAsync("User"))
                     await _roleManager.CreateAsync(new IdentityRole("User"));
+
+                // Yeni kullanıcıya otomatik "User" rolünü veriyoruz
                 await _userManager.AddToRoleAsync(user, "User");
+
                 return Ok(new ResultDto { Status = true, Message = "Kullanıcı başarıyla oluşturuldu." });
             }
+
             return BadRequest(new ResultDto { Status = false, Message = "Kayıt başarısız", Data = result.Errors });
         }
 
