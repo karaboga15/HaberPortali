@@ -1,9 +1,3 @@
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger font-weight-bold">
-        <i class="fas fa-exclamation-triangle"></i> @TempData["Error"]
-    </div>
-}
 @{
     ViewData["Title"] = "Haber Ekle";
     Layout = "_Layout";
@@ -14,7 +8,7 @@
         <div class="card shadow-sm">
             <div class="card-body">
                 <h5 class="mb-4 fw-bold">Haber Ekle</h5>
-                <form method="post">
+                <form method="post" asp-action="NewsCreate">
                     <div class="mb-3">
                         <label class="form-label">Başlık</label>
                         <input name="title" class="form-control" required />
@@ -29,7 +23,16 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Kategori</label>
-                        <select name="categoryId" class="form-select" id="catSelect" required></select>
+                        <select name="categoryId" class="form-select" required>
+                            <option value="">Seçiniz</option>
+                            @if (ViewBag.Categories != null)
+                            {
+                                foreach (var cat in ViewBag.Categories)
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            }
+                        </select>
                     </div>
                     <div class="d-flex gap-2">
                         <button class="btn btn-danger">Kaydet</button>
@@ -40,11 +43,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-<script>
-const cats = @Html.Raw(ViewBag.Categories ?? "[]");
-const sel = document.getElementById('catSelect');
-cats.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.name}</option>`);
-</script>
-}

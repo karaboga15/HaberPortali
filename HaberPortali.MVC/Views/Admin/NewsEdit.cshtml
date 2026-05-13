@@ -8,23 +8,31 @@
         <div class="card shadow-sm">
             <div class="card-body">
                 <h5 class="mb-4 fw-bold">Haber Düzenle</h5>
-                <form method="post" id="editForm">
-                    <input type="hidden" name="id" id="hId" />
+                <form method="post" asp-action="NewsEdit" asp-route-id="@Model?.Id">
+                    <input type="hidden" name="id" value="@Model?.Id" />
                     <div class="mb-3">
                         <label class="form-label">Başlık</label>
-                        <input name="title" id="hTitle" class="form-control" required />
+                        <input name="title" class="form-control" value="@Model?.Title" required />
                     </div>
                     <div class="mb-3">
                         <label class="form-label">İçerik</label>
-                        <textarea name="content" id="hContent" class="form-control" rows="8" required></textarea>
+                        <textarea name="content" class="form-control" rows="8" required>@Model?.Content</textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Resim URL</label>
-                        <input name="imagePath" id="hImage" class="form-control" />
+                        <input name="imagePath" class="form-control" value="@Model?.ImagePath" />
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Kategori</label>
-                        <select name="categoryId" id="catSelect" class="form-select" required></select>
+                        <select name="categoryId" class="form-select" required>
+                            @if (ViewBag.Categories != null)
+                            {
+                                foreach (var cat in ViewBag.Categories)
+                                {
+                                    <option value="@cat.Id" selected="@(cat.Id == Model?.CategoryId)">@cat.Name</option>
+                                }
+                            }
+                        </select>
                     </div>
                     <div class="d-flex gap-2">
                         <button class="btn btn-danger">Güncelle</button>
@@ -35,16 +43,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-<script>
-const news = @Html.Raw(ViewBag.News ?? "{}");
-const cats = @Html.Raw(ViewBag.Categories ?? "[]");
-document.getElementById('hId').value = news.id;
-document.getElementById('hTitle').value = news.title;
-document.getElementById('hContent').value = news.content;
-document.getElementById('hImage').value = news.imagePath ?? '';
-const sel = document.getElementById('catSelect');
-cats.forEach(c => sel.innerHTML += `<option value="${c.id}" ${c.id == news.categoryId ? 'selected' : ''}>${c.name}</option>`);
-</script>
-}
