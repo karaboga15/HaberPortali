@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
 
@@ -13,7 +13,6 @@ namespace HaberPortali.MVC.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        // Token'ý Session'dan al ve yetkilendirilmiþ HttpClient oluþtur
         private HttpClient CreateAuthorizedClient()
         {
             var client = _httpClientFactory.CreateClient("API");
@@ -26,7 +25,6 @@ namespace HaberPortali.MVC.Controllers
             return client;
         }
 
-        // GET: Admin/Index
         public async Task<IActionResult> Index()
         {
             var client = CreateAuthorizedClient();
@@ -40,19 +38,17 @@ namespace HaberPortali.MVC.Controllers
             else
             {
                 ViewBag.News = new List<NewsDto>();
-                TempData["Error"] = "Haberler yüklenirken bir hata oluþtu.";
+                TempData["Error"] = "Haberler yÃ¼klenirken hata oluÅŸtu.";
             }
             return View();
         }
 
-        // GET: Admin/NewsCreate
         public async Task<IActionResult> NewsCreate()
         {
             await LoadCategoriesToViewBag();
             return View();
         }
 
-        // POST: Admin/NewsCreate
         [HttpPost]
         public async Task<IActionResult> NewsCreate(NewsDto model)
         {
@@ -68,26 +64,25 @@ namespace HaberPortali.MVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Haber baþarýyla eklendi.";
+                TempData["Success"] = "Haber baÅŸarÄ±yla eklendi.";
                 return RedirectToAction("Index");
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = $"Haber eklenirken hata oluþtu: {error}";
+                TempData["Error"] = $"Haber eklenirken hata oluÅŸtu: {error}";
                 await LoadCategoriesToViewBag();
                 return View(model);
             }
         }
 
-        // GET: Admin/NewsEdit/{id}
         public async Task<IActionResult> NewsEdit(int id)
         {
             var client = CreateAuthorizedClient();
             var response = await client.GetAsync($"api/news/{id}");
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "Haber bulunamadý.";
+                TempData["Error"] = "Haber bulunamadÄ±.";
                 return RedirectToAction("Index");
             }
 
@@ -97,7 +92,6 @@ namespace HaberPortali.MVC.Controllers
             return View(news);
         }
 
-        // POST: Admin/NewsEdit/{id}
         [HttpPost]
         public async Task<IActionResult> NewsEdit(int id, NewsDto model)
         {
@@ -114,19 +108,18 @@ namespace HaberPortali.MVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Haber güncellendi.";
+                TempData["Success"] = "Haber gÃ¼ncellendi.";
                 return RedirectToAction("Index");
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = $"Güncelleme hatasý: {error}";
+                TempData["Error"] = $"GÃ¼ncelleme hatasÄ±: {error}";
                 await LoadCategoriesToViewBag();
                 return View(model);
             }
         }
 
-        // GET: Admin/NewsDelete/{id}
         public async Task<IActionResult> NewsDelete(int id)
         {
             var client = CreateAuthorizedClient();
@@ -138,7 +131,6 @@ namespace HaberPortali.MVC.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: Admin/CategoryList
         public async Task<IActionResult> CategoryList()
         {
             var client = CreateAuthorizedClient();
@@ -152,18 +144,17 @@ namespace HaberPortali.MVC.Controllers
             else
             {
                 ViewBag.Categories = new List<CategoryDto>();
-                TempData["Error"] = "Kategoriler yüklenemedi.";
+                TempData["Error"] = "Kategoriler yÃ¼klenemedi.";
             }
             return View();
         }
 
-        // POST: Admin/CategoryCreate
         [HttpPost]
         public async Task<IActionResult> CategoryCreate(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                TempData["Error"] = "Kategori adý boþ olamaz.";
+                TempData["Error"] = "Kategori adÄ± boÅŸ olamaz.";
                 return RedirectToAction("CategoryList");
             }
 
@@ -179,7 +170,6 @@ namespace HaberPortali.MVC.Controllers
             return RedirectToAction("CategoryList");
         }
 
-        // GET: Admin/CategoryDelete/{id}
         public async Task<IActionResult> CategoryDelete(int id)
         {
             var client = CreateAuthorizedClient();
@@ -187,7 +177,7 @@ namespace HaberPortali.MVC.Controllers
             if (response.IsSuccessStatusCode)
                 TempData["Success"] = "Kategori silindi.";
             else
-                TempData["Error"] = "Kategori silinemedi. (Ýliþkili haberler olabilir)";
+                TempData["Error"] = "Kategori silinemedi.";
             return RedirectToAction("CategoryList");
         }
 
