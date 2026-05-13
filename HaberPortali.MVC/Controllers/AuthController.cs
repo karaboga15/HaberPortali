@@ -29,10 +29,10 @@ namespace HaberPortali.MVC.Controllers
         public IActionResult Register() => View();
 
         [HttpPost]
-        public async Task<IActionResult> Register(string userName, string password)
+        public async Task<IActionResult> Register(string userName, string email, string phoneNumber, string password)
         {
             var client = _http.CreateClient("API");
-            var body = new StringContent(JsonSerializer.Serialize(new { userName, password }), Encoding.UTF8, "application/json");
+            var body = new StringContent(JsonSerializer.Serialize(new { userName, email, phoneNumber, password }), Encoding.UTF8, "application/json");
             var res = await client.PostAsync("api/auth/register", body);
             if (!res.IsSuccessStatusCode) { ViewBag.Error = "Kayıt başarısız."; return View(); }
             return RedirectToAction("Login");

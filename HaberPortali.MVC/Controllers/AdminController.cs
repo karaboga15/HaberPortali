@@ -79,12 +79,16 @@ namespace HaberPortali.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CategoryCreate(string name)
+        public async Task<IActionResult> CategoryCreate([FromBody] JsonElement dto)
         {
-            var client = GetAuthorizedClient();
+            var token = HttpContext.Session.GetString("token");
+            if (string.IsNullOrEmpty(token)) return StatusCode(401, "Token yok.");
+            var client = _http.CreateClient("API");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var name = dto.GetProperty("name").GetString();
             var body = new StringContent(JsonSerializer.Serialize(new { id = 0, name }), Encoding.UTF8, "application/json");
-            await client.PostAsync("api/category", body);
-            return RedirectToAction("CategoryList");
+            var res = await client.PostAsync("api/category", body);
+            return res.IsSuccessStatusCode ? Ok() : StatusCode((int)res.StatusCode, await res.Content.ReadAsStringAsync());
         }
 
         public async Task<IActionResult> CategoryDelete(int id)
@@ -93,5 +97,14 @@ namespace HaberPortali.MVC.Controllers
             await client.DeleteAsync($"api/category/{id}");
             return RedirectToAction("CategoryList");
         }
+        [HttpGet]
+        public async Task<IActionResult> GetCategories()
+        {
+            var client = GetAuthorizedClient();
+            var cats = await client.GetStringAsync("api/category");
+            return Content(cats, "application/json");
+        }
+
+
     }
 }
