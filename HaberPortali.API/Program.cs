@@ -13,9 +13,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(o =>
     o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<AppUser, IdentityRole>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+// Program.cs içindeki AddIdentity satýrlarýný þununla deðiþtir:
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
+    // Þifre kurallarýný tamamen esnetiyoruz ki kayýt olurken hata vermesin!
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 3;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.User.RequireUniqueEmail = false;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
 
 // KESÝN ÇÖZÜM 1: Identity'nin seni saçma sapan 404 sayfalarýna yönlendirmesini engelliyoruz.
 // Bunun yerine dürüstçe 401 ve 403 HTTP kodlarýný döndürecek.
