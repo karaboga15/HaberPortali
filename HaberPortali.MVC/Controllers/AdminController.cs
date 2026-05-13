@@ -39,9 +39,34 @@ namespace HaberPortali.MVC.Controllers
         public async Task<IActionResult> NewsCreate(string title, string content, string imagePath, int categoryId)
         {
             var client = GetAuthorizedClient();
-            var body = new StringContent(JsonSerializer.Serialize(new { title, content, imagePath, categoryId }), Encoding.UTF8, "application/json");
-            await client.PostAsync("api/news", body);
-            return RedirectToAction("Index");
+
+            // API'nin model doðrulamasýna takýlmamak için payload'u tam oluþturuyoruz (id = 0)
+            var payload = new
+            {
+                id = 0,
+                title = title,
+                content = content,
+                imagePath = imagePath,
+                categoryId = categoryId
+            };
+
+            var body = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+            // API'ye isteði atýyoruz
+            var response = await client.PostAsync("api/news", body);
+
+            // Eðer iþlem GERÇEKTEN baþarýlýysa listeye dön
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // EÐER BAÞARISIZSA: API'nin neden kaydetmediðini yakalayýp ekrana yansýtýyoruz
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            TempData["Error"] = $"Haber eklenemedi! API Hatasý: {response.StatusCode} - {errorMessage}";
+
+            // Hatalý durumda tekrar ekleme formuna geri döndürüyoruz
+            return RedirectToAction("NewsCreate");
         }
 
         public async Task<IActionResult> NewsEdit(int id)
@@ -79,16 +104,12 @@ namespace HaberPortali.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CategoryCreate([FromBody] JsonElement dto)
+        public async Task<IActionResult> CategoryCreate(string name)
         {
-            var token = HttpContext.Session.GetString("token");
-            if (string.IsNullOrEmpty(token)) return StatusCode(401, "Token yok.");
-            var client = _http.CreateClient("API");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            var name = dto.GetProperty("name").GetString();
+            var client = GetAuthorizedClient();
             var body = new StringContent(JsonSerializer.Serialize(new { id = 0, name }), Encoding.UTF8, "application/json");
-            var res = await client.PostAsync("api/category", body);
-            return res.IsSuccessStatusCode ? Ok() : StatusCode((int)res.StatusCode, await res.Content.ReadAsStringAsync());
+            await client.PostAsync("api/category", body);
+            return RedirectToAction("CategoryList");
         }
 
         public async Task<IActionResult> CategoryDelete(int id)
@@ -97,14 +118,5 @@ namespace HaberPortali.MVC.Controllers
             await client.DeleteAsync($"api/category/{id}");
             return RedirectToAction("CategoryList");
         }
-        [HttpGet]
-        public async Task<IActionResult> GetCategories()
-        {
-            var client = GetAuthorizedClient();
-            var cats = await client.GetStringAsync("api/category");
-            return Content(cats, "application/json");
-        }
-
-
     }
 }

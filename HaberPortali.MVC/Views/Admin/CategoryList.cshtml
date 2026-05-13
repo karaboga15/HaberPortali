@@ -8,11 +8,12 @@
         <div class="card shadow-sm mb-4">
             <div class="card-body">
                 <h6 class="fw-bold mb-3">Kategori Ekle</h6>
-                <div class="input-group">
-                    <input id="catName" class="form-control" placeholder="Kategori adı" />
-                    <button class="btn btn-danger" onclick="addCategory()">Ekle</button>
-                </div>
-                <div id="msg" class="mt-2"></div>
+                <form method="post" asp-action="CategoryCreate">
+                    <div class="input-group">
+                        <input name="name" class="form-control" placeholder="Kategori adı" required />
+                        <button class="btn btn-danger">Ekle</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -29,36 +30,12 @@
 </div>
 
 @section Scripts {
-    <script>
-        function loadCategories() {
-            $.getJSON('/Admin/GetCategories', function(cats) {
-                var tbody = $('#catBody');
-                tbody.empty();
-                cats.forEach(function(c) {
-                    tbody.append(`<tr><td>${c.id}</td><td>${c.name}</td>
-                        <td><a href="/Admin/CategoryDelete/${c.id}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silinsin mi?')"><i class="bi bi-trash"></i></a></td></tr>`);
-                });
-            });
-        }
-
-        function addCategory() {
-            var name = $('#catName').val().trim();
-            if (!name) return;
-            $.ajax({
-               url: '@Url.Action("CategoryCreate", "Admin")',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ name: name }),
-                success: function() {
-                    $('#catName').val('');
-                    $('#msg').html('<span class="text-success">Eklendi!</span>');
-                    loadCategories();
-                    setTimeout(() => $('#msg').html(''), 2000);
-                },
-                error: function() { $('#msg').html('<span class="text-danger">Hata oluştu.</span>'); }
-            });
-        }
-
-        loadCategories();
-    </script>
+<script>
+const cats = @Html.Raw(ViewBag.Categories ?? "[]");
+const tbody = document.getElementById('catBody');
+cats.forEach(c => {
+    tbody.innerHTML += `<tr><td>${c.id}</td><td>${c.name}</td>
+        <td><a href="/Admin/CategoryDelete/${c.id}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silinsin mi?')"><i class="bi bi-trash"></i></a></td></tr>`;
+});
+</script>
 }

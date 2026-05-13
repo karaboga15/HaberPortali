@@ -1,3 +1,9 @@
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger font-weight-bold">
+        <i class="fas fa-exclamation-triangle"></i> @TempData["Error"]
+    </div>
+}
 @{
     ViewData["Title"] = "Haber Ekle";
     Layout = "_Layout";
